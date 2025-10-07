@@ -15,7 +15,7 @@ const app = express();
 // Middlewares
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://aayu-nha3.vercel.app/'
+  'https://aayu-nha3.vercel.app'
 ];
 app.use(cors({
   origin: (origin, callback) => {
