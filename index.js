@@ -6,7 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser'; // <-- added
 import connectDB from './libs/db.js';
 import cartRoutes from './routes/cartRoutes.js'; // <-- added
-// import orderRoutes from "./routes/orderRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 import { generateUuid } from './middlewares/generateUuid.js'; // <-- added
 
@@ -43,7 +43,7 @@ app.use(generateUuid)
 app.use('/api/cart', cartRoutes);
 
 
-// app.use("/api/orders", orderRoutes);
+app.use("/api/order", orderRoutes);
 
 
 // Test route

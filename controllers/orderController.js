@@ -2,6 +2,11 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js"; // ✅ Import Cart model
+import dotenv from 'dotenv';
+import { sendAdminEmail } from "../middlewares/nodemailer.js";
+
+
+dotenv.config();
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
@@ -15,28 +20,22 @@ const razorpay = new Razorpay({
 export const checkout = async (req, res) => {
   try {
     const { userInfo, items } = req.body;
-    const uuid = req.cookies?.uuid; // get UUID from cookie
-
+    const uuid = req.cookies?.uuid;
     if (!uuid) {
       return res.status(400).json({ message: "UUID cookie not found" });
     }
-
     if (!userInfo || !items || !items.length) {
       return res.status(400).json({ message: "User info and items are required" });
     }
-
     // Calculate total amount in smallest unit (paise)
     const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100;
-
     // Create Razorpay order
     const options = {
       amount: totalAmount,
       currency: "INR",
       receipt: `order_rcpt_${Date.now()}`,
     };
-
     const razorpayOrder = await razorpay.orders.create(options);
-
     // Save order in DB with pending status + UUID
     const order = await Order.create({
       uuid, // link order to visitor
@@ -83,8 +82,8 @@ export const verifyPayment = async (req, res) => {
       const uuid = req.cookies?.uuid;
       if (uuid) {
         await Cart.findOneAndDelete({ uuid });
-      }
-
+      } 
+        await sendAdminEmail(order);
       return res.status(200).json({ message: "Payment verified, cart cleared", order });
     } else {
       return res.status(400).json({ message: "Payment verification failed" });
